@@ -11,7 +11,7 @@ const app=express();
 app.use(cors());
 app.use(xss())
 app.use(bodyParser.urlencoded({extended:true}));
-app.use(bodyParser.json({limit:"10mb"}));
+app.use(bodyParser.json({limit:"60mb"}));
 app.use(express.json());
 app.use('/mcs3',routes)
 
