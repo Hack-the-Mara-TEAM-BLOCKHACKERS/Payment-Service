@@ -1,7 +1,7 @@
 
 const { v4: uuidv4 } = require('uuid');
 const axios = require('axios');
-const memcrypt = require('../auth/encrypt');
+const memcrypt = require('../../auth/encrypt');
 
 
 const getPubKey = async (req, res, next) => {

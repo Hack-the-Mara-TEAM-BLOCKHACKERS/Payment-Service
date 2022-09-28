@@ -5,15 +5,15 @@ const fs = require('fs');
 const path = require('path');
 const { Console } = require('console');
 const { arrayify } = require('ethers/lib/utils');
-const privateKey = fs.readFileSync(path.join(__dirname, '../auth/private-key.pem'), 'utf8');
-const publicKey = fs.readFileSync(path.join(__dirname, '../auth/public-key.pem'), 'utf8');
+const privateKey = fs.readFileSync(path.join(__dirname, '../../auth/private-key.pem'), 'utf8');
+const publicKey = fs.readFileSync(path.join(__dirname, '../../auth/public-key.pem'), 'utf8');
 
 
 
 
 
 const disbursedPay = async (req, res, next) => {
-    const payload = { 'provider': 'MPESA-B2C', 'currency': 'KES', 'callback_url': 'https://263a-105-112-181-175.eu.ngrok.io/disbursedWebhook', 'transactions': [{ 'name': 'test-name', 'account': 254725456456, 'amount': 1300 },{ 'name': 'test-name', 'account': 254723567897, 'amount': 1300 }, { 'name': 'test-name', 'account': 254723870353, 'amount': 1300 }], 'device_id': "PRXXORV" }
+    const payload = { 'provider': 'MPESA-B2C', 'currency': 'KES', 'callback_url': 'https://263a-105-112-181-175.eu.ngrok.io/disbursedWebhook', 'transactions': [{ 'name': 'test-name', 'account': 254725456456, 'amount': 1300 }, { 'name': 'test-name', 'account': 254723567897, 'amount': 1300 }, { 'name': 'test-name', 'account': 254723870353, 'amount': 1300 }], 'device_id': "PRXXORV" }
     let latestResponse = {}
     var token = 'ISSecretKey_test_0aefd410-da30-4a35-ab47-4335e9a35f69';
     try {
@@ -33,7 +33,7 @@ const disbursedPay = async (req, res, next) => {
             const signature = require("crypto").sign("sha256", Buffer.from(nonce),
                 {
                     key: privateKey
-                    // padding: require("crypto").constants.RSA_PKCS1_PSS_PADDING,
+
                 });
 
             const isVerified = require("crypto").verify(
@@ -41,7 +41,7 @@ const disbursedPay = async (req, res, next) => {
                 Buffer.from(nonce),
                 {
                     key: publicKey
-                    // padding: require("crypto").constants.RSA_PKCS1_PSS_PADDING,
+
                 },
                 Buffer.from(signature.toString("hex"), "hex")
             );
@@ -84,25 +84,17 @@ const disbursedPay = async (req, res, next) => {
                 const allMpesa = resp.data['transactions'];
                 const paid = allMpesa.map((num) => '+' + num['account']);
                 //const paidCash = allMpesa.map((num) => '+' + num['amount']);
-               
+
 
                 try {
-                    //var phone = resp.data['transactions'][0]['account'];
-                    //let realPhone = '+'+phone;
-                     var arr = '*384*6566*3#'// Create empty array
-
-
-                    // SIMPLE
-                    // arr.push(realPhone.toString());
-                    // console.log(arr)
+                    var arr = '*384*6566*3#'
                     axios.post(
-                        "http://localhost:3001/sendSMS",
+                        "https://sopa-ereto-ussd.herokuapp.com/sendSMS",
 
                         data = { "group": paid, "messageBody": `You were paid ${paidCash}KSH at ${startTime} by the conservancy. You will get a credit alert shortly. You can dial ${arr} or visit https://sopa-ereto.vercel.app/transaction to get real-time information on how the fund was disbursed` },
                         {
                             headers: {
-                                "Content-type": "application/json",
-
+                                "Content-type": "application/json"
                             }
                         }
                     ).then((resp) => {
@@ -135,12 +127,54 @@ const disbursedPay = async (req, res, next) => {
 
 
 
+const payAllLandOwners = async (req, res, next) => {
+
+    try {
+        // console.log(name);
+        await axios({
+            method: "get",
+            url:   `https://sopa-ereto-diam.herokuapp.com/mcs2/all-LandOwners`,
+           
+
+        }).then((response) => {
+            //console.log(response.data['data'])
+            
+            for (let i = 0; i < response.data['data']; i++) {
+                console.log(response.data[i]['data']['phone'][i]);
+            }
+
+
+
+        })
+    } catch (error) {
+        console.log(error);
+    }
+
+
+
+
+
+
+
+
+
+
+     
+
+
+
+   
+
+
+};
+
 
 
 
 
 module.exports = {
-    disbursedPay
+    disbursedPay,
+    payAllLandOwners
 
 };
 

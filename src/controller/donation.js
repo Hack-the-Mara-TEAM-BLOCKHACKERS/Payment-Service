@@ -124,6 +124,7 @@ const recieveCardDonation = async (req, res, next) => {
 
 
 const sendPay = async (req, res, next) => {
+  var symbols=req.body.symbol
   const options = {
     method: 'POST',
     url: 'https://api-sandbox.circle.com/v1/paymentIntents',
@@ -136,13 +137,13 @@ const sendPay = async (req, res, next) => {
       source: { type: 'wallet', id: '12345' },
       destination: {
         type: 'blockchain',
-        address: '3C9Q',
+        address: req.body.walletAddress,
         addressTag: '123456789',
-        chain: 'BTC'
+        chain: symbols.toUpperCase()
       },
-      paymentMethods: [{ type: 'blockchain', chain: 'BTC' }],
+      paymentMethods: [{ type: 'blockchain', chain:symbols.toUpperCase() }],
       settlementCurrency: 'USD',
-      amount: { amount: '3.14', currency: 'BTC' },
+      amount: { amount: req.body.sentAmount, currency: symbols.toUpperCase() },
       idempotencyKey: `${uuidv4()}`,
     })
   };
@@ -151,11 +152,17 @@ const sendPay = async (req, res, next) => {
   axios
     .request(options)
     .then(function (response) {
-      //console.log(response.data);
-      res.send(response.data);
+    
+      res.send({
+        status:"SE200",
+       data: response.data
+      });
     })
     .catch(function (error) {
-      console.error(error);
+      res.send({
+        status:"SE400",
+       data: error.data
+      });
     });
 
 
